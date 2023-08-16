@@ -102,7 +102,7 @@ UI에서 추적을 찾는 데 도움이 더 필요하면:
 * [분산 추적 UI 이해 및 사용](/docs/distributed-tracing/ui-data/understand-use-distributed-tracing-ui)
 * [분산 추적 데이터 쿼리](/docs/understand-dependencies/distributed-tracing/ui-data/query-distributed-trace-data)
 
-### 무한 추적 설정(권장) [#infinite-tracing]
+### 무한 추적 설정 [#infinite-tracing]
 
 APM 에이전트용 표준 분산 추적( [위](#quick-start-apm) )은 추적의 최대 10%를 캡처하지만 당사가 모든 데이터를 분석하고 가장 관련성이 높은 추적을 찾기를 원하는 경우 무한 추적을 설정할 수 있습니다.
 
@@ -153,7 +153,7 @@ APM 에이전트용 표준 분산 추적( [위](#quick-start-apm) )은 추적의
           <td>
             이 설치 명령으로 라이브러리를 풀다운한 다음 구성 파일 또는 환경 변수를 설정합니다.
 
-            ```
+            ```bash
             pip install newrelic[infinite-tracing]
             ```
 
@@ -161,16 +161,16 @@ APM 에이전트용 표준 분산 추적( [위](#quick-start-apm) )은 추적의
 
             구성 파일( `newrelic.ini` ):
 
-            ```
+            ```ini
             distributed_tracing.enabled = true
             infinite_tracing.trace_observer_host = YOUR_TRACE_OBSERVER_HOST
             ```
 
             환경 변수:
 
-            ```
+            ```ini
             NEW_RELIC_DISTRIBUTED_TRACING_ENABLED = true
-            NEW_RELIC_INFINITE_TRACING_TRACE_OBSERVER_HOST = "<a href="/docs/understand-dependencies/distributed-tracing/infinite-tracing/set-trace-observer#ui-endpoints">YOUR_TRACE_OBSERVER_HOST</a>"
+            NEW_RELIC_INFINITE_TRACING_TRACE_OBSERVER_HOST = "YOUR_TRACE_OBSERVER_HOST"
             ```
 
             **일괄 처리 및 압축 구성 옵션:**
@@ -179,14 +179,14 @@ APM 에이전트용 표준 분산 추적( [위](#quick-start-apm) )은 추적의
 
             구성 파일( `newrelic.ini` ):
 
-            ```
+            ```ini
             infinite_tracing.batching = true # Send spans to the trace observer in batches rather than one by one
             infinite_tracing.compression = true # Enable gzip compression for data sent via infinite tracing
             ```
 
             환경 변수:
 
-            ```
+            ```ini
             NEW_RELIC_INFINITE_TRACING_BATCHING = true
             NEW_RELIC_INFINITE_TRACING_COMPRESSION = true
             ```
@@ -303,13 +303,13 @@ APM 에이전트용 표준 분산 추적( [위](#quick-start-apm) )은 추적의
           <td>
             구성 파일( `newrelic.ini` ):
 
-            ```
+            ```ini
             distributed_tracing.enabled = true
             ```
 
             환경 변수:
 
-            ```
+            ```ini
             NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
             ```
           </td>

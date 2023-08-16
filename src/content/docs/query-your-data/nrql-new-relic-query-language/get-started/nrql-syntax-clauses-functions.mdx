@@ -146,6 +146,12 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
         SELECT count(*) FROM Transaction, PageView SINCE 3 days ago
         ```
       </Collapser>
+      <Collapser
+        id="from-lookups"
+        title="Query data from a lookup table"
+      >
+        See [`lookup()`](#lookup). 
+      </Collapser>      
     </CollapserGroup>
   </Collapser>
 </CollapserGroup>
@@ -350,6 +356,20 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
         Cohort analysis is a way to group results together based on timestamps. You can separate them into buckets that cover a specified range of dates and times.
       </Collapser>
     </CollapserGroup>
+    <Callout variant="important">
+      When using functions to aggregate attribute values, it's important the attribute being aggregated in the first function of your query contains non-null values. Facets will only be chosen for rows which contain a non-null value for the attribute in the first function. 
+
+      Example:
+      ```sql
+      FROM Event SELECT average(attribute) FACET name
+      ```
+      Names will only be chosen from rows where attribute is not null. 
+
+      To check if the attribute you're using in your function contains non-null values, run the following query:
+      ```sql
+      FROM Event SELECT attribute, name WHERE attribute IS NOT NULL
+      ```
+    </Callout>
   </Collapser>
 
   <Collapser
@@ -440,6 +460,9 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
     ```sql
     FROM Transaction SELECT average(duration) TIMESERIES FACET appName ORDER BY max(responseSize)
     ```
+
+    Keep in mind that if you use the `FACET ... ORDER BY` clause, you can't change the sort order by adding the `ASC` and `DESC` modifiers. By default, this clause uses `DESC`.
+
 
     <Callout variant="tip">
       Because the operations are performed before the `LIMIT` clause is applied, `FACET ... ORDER BY` does not impact the sort of the final query results, which will be particularly noticeable in the results for non-timeseries queries.
@@ -653,6 +676,7 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
     </CollapserGroup>
   </Collapser>
 
+
   <Collapser
     className="freq-link"
     id="sel-offset"
@@ -729,7 +753,7 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
 
     The **default** value is **1 hour ago**.
 
-    Use the `SINCE` clause to define the beginning of a time range for the returned data. You can specify a time zone for the query but not for the results. NRQL results are based on your system time.
+    Use the `SINCE` clause to define the inclusive beginning of a time range for the returned data. You can specify a time zone for the query but not for the results. NRQL results are based on your system time.
 
     When using NRQL, you can set a UTC timestamp or a relative time range:
 
@@ -739,6 +763,8 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
       ```
     * We support the following relative time ranges: `YESTERDAY`, `TODAY`, `SUNDAY`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`. For example, `SINCE YESTERDAY UNTIL NOW`.
     * We also support `YEAR`, `QUARTER`, `MONTH`, `WEEK`, `DAY`, `HOUR`, `MINUTE`, `SECOND`. For these cases, you can combine `SINCE` with `THIS` or `LAST`. For instance, `SINCE LAST MONTH UNTIL THIS WEEK`. You can also include `AGO`, as in `SINCE 3 WEEKS AGO UNTIL 10 MINUTES AGO`.
+
+    See also: [UNTIL](#sel-until)
   </Collapser>
 
   <Collapser
@@ -865,10 +891,12 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
       ...
     ```
 
+    Use the `UNTIL` clause to define the end of the time range to query. The value is exclusive, meaning the time range will go to the specified instant in time, but not include it.
+
     The **default** value is **NOW**. Only use `UNTIL` to specify an end point other than the default.
 
-    Use the `UNTIL` clause to define the end of a time range across which to return data. Once a time range has been specified, the data will be preserved and can be reviewed after the time range has ended.
-
+    See also: [SINCE](#sel-since)
+    
     See [Use the time picker to adjust time settings](/docs/query-your-data/explore-query-data/dashboards/manage-your-dashboard/#dash-time-picker) for detailed information and examples.
   </Collapser>
 
@@ -887,7 +915,6 @@ As noted in our [basic NRQL syntax doc](/docs/query-your-data/nrql-new-relic-que
     ```
 
     * If you specify more than one condition, separate the conditions by the operators `AND` or `OR`.
-    * If you want to [simulate a SQL `JOIN`](/docs/insights/nrql-new-relic-query-language/using-nrql/simulate-sql-join-functions-insights), use custom attributes in a `WHERE` or `FACET` clause.
 
     <table id="where-operators">
       <thead>
@@ -1778,11 +1805,11 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
 
     It takes three arguments:
 
-    * Attribute name
-    * Maximum value of the sample range. Any outliers will appear in the final bucket.
-    * Total number of buckets
+      * Attribute name
+      * Maximum value of the sample range (any outliers will appear in the final bucket)
+      * Total number of buckets
 
-      For more information and examples, see [Split your data into buckets](/docs/insights/nrql-new-relic-query-language/nrql-query-examples/segment-your-insights-data-buckets).
+    For more information and examples, see [Split your data into buckets](/docs/insights/nrql-new-relic-query-language/nrql-query-examples/segment-your-insights-data-buckets).
   </Collapser>
 
   <Collapser
@@ -1830,6 +1857,26 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
 
   <Collapser
     className="freq-link"
+    id="func-cdfPercentage"
+    title={<InlineCode>cdfPercentage(attribute, threshold [, threshold [, ...]])</InlineCode>}
+  >
+    `cdfPercentage()` is an implementation of the [cumulative distribution function](https://en.wikipedia.org/wiki/Cumulative_distribution_function), returning percentages of `attribute` values whose value is less than or equal to one or more `thresholds`.
+
+    `cdfPercentage()` aggregates on its `attribute` argument, which can be either a numeric attribute or a distribution metric attribute. Mixed types in one query are accepted. Other types (such as string) are ignored. Up to 10 thresholds can be specified.
+
+    <CollapserGroup>
+      <Collapser title="Get the percentage of first paints faster than certain thresholds">
+        This query returns the percentage of events where firstPaint is less than or equal to 0.5 seconds, and the percentage of events where firstPaint is less than or equal to 1 second. 
+
+        ```sql
+        FROM PageView SELECT cdfPercentage(firstPaint, 0.5, 1.0)
+        ```
+      </Collapser>
+    </CollapserGroup>
+  </Collapser>
+
+  <Collapser
+    className="freq-link"
     id="func-count"
     title={<InlineCode>count(*)</InlineCode>}
   >
@@ -1864,7 +1911,7 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
       FROM Metric SELECT count(node_filesystem_size) TIMESERIES FACET dimensions()
       ```
 
-      When used with a `FACET` clause, `dimensions()` produces a unique timeseries for all facets available on the event type, similar to how Prometheus behaves with non-aggregated queries.
+    When used with a `FACET` clause, `dimensions()` produces a unique timeseries for all facets available on the event type, similar to how Prometheus behaves with non-aggregated queries.
   </Collapser>
 
   <Collapser
@@ -1976,7 +2023,7 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
     <CollapserGroup>
       <Collapser title={<><InlineCode>mod()</InlineCode> within a <InlineCode>FACET</InlineCode> clause</>}>
         ```sql
-        FROM NrDailyUsage SELECT uniques(hostId, 10000) SINCE 1 day AGO FACET mod(hostId, 10)
+        FROM NrConsumption SELECT uniques(hostId, 10000) SINCE 1 day AGO FACET mod(hostId, 10)
         ```
       </Collapser>
     </CollapserGroup>
@@ -2082,7 +2129,7 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
     * Use [`TIMESERIES`](#sel-timeseries) to generate a line chart with rates mapped over time.
     * Omit [`TIMESERIES`](#sel-timeseries) to generate a billboard showing a single rate value averaged over time.
 
-      Here's a basic query that will generate a line chart showing the rate of throughput for <InlinePopover type="apm" /> transactions per 10 minutes over the past 6 hours:
+    Here's a basic query that will generate a line chart showing the rate of throughput for <InlinePopover type="apm" /> transactions per 10 minutes over the past 6 hours:
 
       ```sql
       SELECT rate(count(*), 10 minute) FROM Transaction SINCE 6 hours ago
@@ -2136,7 +2183,7 @@ SELECT histogram(duration, 10, 20) FROM PageView SINCE 1 week ago
   >
     Use the `sum()` function to return the sum recorded values of a numeric attribute over the time range specified.
 
-    It takes a single argument. Arguments after the first will be ignored. If the attribute is not numeric, it will return a value of zero.
+    It takes a single argument. If the attribute is not numeric, it will return a value of zero.
   </Collapser>
 
   <Collapser
@@ -2324,8 +2371,9 @@ Note: `aparse()` is case-insensitive.
     Use `capture()` to extract values from an attribute using a regular expression with [RE2 syntax](https://github.com/google/re2/wiki/Syntax).
 
     It takes two arguments:
-    * Attribute name.
-    * Regular expression with capture syntax. Regex expressions in NRQL use Python-like syntax, `r'...'`.
+    
+      * Attribute name
+      * Regular expression with capture syntax (regex expressions in NRQL use Python-like syntax, `r'...'`)
 
     When capturing, use the RE2 named-capture syntax `...(?P<name> pattern )...` to capture the contained pattern, given the specified name.
 
@@ -2412,7 +2460,7 @@ Note: `aparse()` is case-insensitive.
   >
     Use the `earliest()` function to return the earliest value for an attribute over the specified time range.
 
-    It takes a single argument. Arguments after the first will be ignored.
+    It takes a single argument.
 
     If used in conjunction with a `FACET` it will return the most recent value for an attribute for each of the resulting facets.
 
@@ -2604,6 +2652,28 @@ Note: `aparse()` is case-insensitive.
 
   <Collapser
     className="freq-link"
+    id="func-getCdfCount"
+    title={<InlineCode>getCdfCount(attribute, threshold)</InlineCode>}
+  >
+    `getCdfCount()` is an implementation of the [cumulative distribution function](https://en.wikipedia.org/wiki/Cumulative_distribution_function), returning the number of values in `attribute` at or below `threshold`.
+
+    Only one threshold is allowed. `Attribute` may be either a numeric attribute or a distribution metric attribute. Mixed types in one query are accepted.
+
+    For a numeric type, it returns 1 if the attribute is less than or equal to threshold, otherwise it returns 0. For a distribution, it returns the count in the dataset represented by the distribution. For all other types, it returns 0.
+
+    <CollapserGroup>
+      <Collapser title="Get the number of first paints faster than a threshold">
+        This query returns the number of events where firstPaint is less than or equal to 1 second. 
+
+        ```sql
+        FROM PageView SELECT sum(getCdfCount(firstPaint, 1.0))
+        ```
+      </Collapser>
+    </CollapserGroup>
+  </Collapser>
+
+  <Collapser
+    className="freq-link"
     id="func-histogram"
     title={<InlineCode>histogram(attribute, ceiling [,number of buckets])</InlineCode>}
   >
@@ -2686,7 +2756,7 @@ Note: `aparse()` is case-insensitive.
         ```sql
         FROM Log
           SELECT count(*)
-          FACET if(level_name = 'INFO’ OR level_name = ‘WARNING’, 'NOT_ERROR', 'ERROR’)
+          FACET if(level_name = 'INFO' OR level_name = 'WARNING', 'NOT_ERROR', 'ERROR')
         ```
       </Collapser>
       <Collapser title={<>Nested <InlineCode>If()</InlineCode></>}>
@@ -2727,7 +2797,7 @@ Note: `aparse()` is case-insensitive.
   >
     Use the `latest()` function to return the most recent value for an attribute over a specified time range.
 
-    It takes a single argument. Arguments after the first will be ignored.
+    It takes a single argument.
 
     If used in conjunction with a `FACET` it will return the most recent value for an attribute for each of the resulting facets.
 
@@ -2749,7 +2819,7 @@ Note: `aparse()` is case-insensitive.
   >
     Use the `length()` function to return the length of a string value or the number of elements in an array value.
 
-    It takes a single argument. Arguments after the first will be ignored.
+    It takes a single argument.
 
     <CollapserGroup>
       <Collapser title="Get the URL length from PageView">
@@ -2761,6 +2831,24 @@ Note: `aparse()` is case-insensitive.
       </Collapser>
     </CollapserGroup>
   </Collapser>
+
+  <Collapser
+    className="freq-link"
+    id="func-lookup"
+    title={<InlineCode>lookup(table)</InlineCode>}
+  >
+  If you've [uploaded a lookup table](/docs/logs/ui-data/lookup-tables-ui), you can use this function with a table name to access that table's data in a query. Here's an example query: 
+
+  ```sql
+  FROM Log 
+  SELECT count(*)
+  WHERE hostname IN (FROM lookup(myHosts) SELECT uniques(myHost))
+  ``` 
+
+  For more information, see [How to query lookup table data](/docs/query-your-data/nrql-new-relic-query-language/nrql-query-tutorials/lookups).
+
+  </Collapser>
+
 
   <Collapser
     className="freq-link"
@@ -2998,16 +3086,16 @@ Note that comments aren't displayed everywhere. Some views, like "recent queries
 
 Some example queries that include comments:
 
-```
+```sql
 FROM Transaction SELECT uniqueCount(appId) -- This will return the number of unique App IDs
 ```
 
-```
+```sql
 FROM TransactionError
 SELECT count(*) SINCE 1 day ago // Transaction Error for the past day
 ```
 
-```
+```sql
 FROM TransactionTrace /* This data may be incomplete;
 If so, run a query of Transaction */
 SELECT count(*)

@@ -1,8 +1,11 @@
 title: Browser monitoring
 path: /docs/browser
 pages:
-  - title: Using browser monitoring
+  - title: Get started with browser monitoring
     path: /docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring
+  - title: Improve your website's performance
+    label: Tutorial
+    path: /docs/tutorial-app-performance/instrument-your-site
   - title: Guides
     pages:
       - title: Browser monitoring best practices
@@ -36,7 +39,7 @@ pages:
       - title: Group data by URL patterns
         path: /docs/browser/new-relic-browser/configuration/group-browser-metrics-urls
       - title: Change your browser agent type
-        patj: /docs/browser/new-relic-browser/configuration/change-browser-agent-type
+        path: /docs/browser/new-relic-browser/configuration/change-browser-agent-type
       - title: Disable browser monitoring
         path: /docs/browser/new-relic-browser/installation/disable-browser-monitoring
       - title: Rename browser apps
@@ -73,8 +76,6 @@ pages:
     pages:
       - title: Introduction to SPA monitoring
         path: /docs/browser/single-page-app-monitoring/get-started/introduction-single-page-app-monitoring
-      - title: SPA compatibility and requirements
-        path: /docs/browser/single-page-app-monitoring/get-started/spa-compatibility-requirements
       - title: Install SPA monitoring
         path: /docs/browser/single-page-app-monitoring/get-started/install-single-page-app-monitoring
       - title: View SPA data in Browser UI
@@ -153,36 +154,44 @@ pages:
             path: /docs/browser/new-relic-browser/browser-apis/setname
   - title: Troubleshooting
     pages:
-      - title: Installation
-        path: /docs/browser/browser-monitoring/troubleshooting/troubleshoot-your-browser-monitoring-installation
-      - title: Data doesn't match other tools
-        path: /docs/browser/new-relic-browser/troubleshooting/browser-data-doesnt-match-other-analytics-tools
-      - title: View detailed error logs
-        path: /docs/browser/new-relic-browser/troubleshooting/view-detailed-error-logs-browser
       - title: AJAX data collection
         path: /docs/browser/new-relic-browser/troubleshooting/troubleshoot-ajax-data-collection
-      - title: Session trace collection
-        path: /docs/browser/new-relic-browser/troubleshooting/troubleshooting-session-trace-collection
       - title: AngularJS errors do not appear
         path: /docs/browser/new-relic-browser/troubleshooting/angularjs-errors-do-not-appear
       - title: Angular truncated agent snippet
         path: /docs/browser/single-page-app-monitoring/troubleshooting/angular-truncated-copy-paste-snippet
+      - title: Data doesn't match other tools
+        path: /docs/browser/new-relic-browser/troubleshooting/browser-data-doesnt-match-other-analytics-tools
+      - title: Google Indexing 404 Paths
+        path: /docs/browser/new-relic-browser/troubleshooting/google-indexing-unknown-paths
       - title: HAR data collection
         path: /docs/browser/new-relic-browser/troubleshooting/get-browser-side-troubleshooting-details-har-file
-      - title: Not seeing specific page names
-        path: /docs/browser/new-relic-browser/troubleshooting/not-seeing-specific-page-or-endpoint-names-browser-data
+      - title: Installation
+        path: /docs/browser/browser-monitoring/troubleshooting/troubleshoot-your-browser-monitoring-installation
       - title: JS injection causes problems
         path: /docs/browser/new-relic-browser/troubleshooting/browser-javascript-injection-causes-problems-page
       - title: JS errors missing traces
         path: /docs/browser/new-relic-browser/troubleshooting/third-party-js-errors-missing-stack-traces
-      - title: RPM higher than PPM
-        path: /docs/browser/new-relic-browser/troubleshooting/app-server-requests-greatly-outnumber-browser-pageview-transactions
+      - title: Missing data on Errors Inbox page
+        path: /docs/browser/new-relic-browser/troubleshooting/missing-data-on-errors-inbox-page
       - title: Missing data on Web vitals page
         path: /docs/browser/new-relic-browser/troubleshooting/missing-data-on-web-vitals-page
-      - title: "SPA: Missing route changes"
-        path: /docs/browser/single-page-app-monitoring/troubleshooting/missing-route-changes-spa-agent
+      - title: MooTools related errors encountered
+        path: /docs/browser/new-relic-browser/troubleshooting/mootools-related-errors
       - title: Navigation start time unknown
         path: /docs/browser/new-relic-browser/page-load-timing-resources/navigation-start-time-unknown
+      - title: NextJS App Router Links Broken
+        path: /docs/browser/single-page-app-monitoring/troubleshooting/nextjs-app-router-links-broken
+      - title: Not seeing specific page names
+        path: /docs/browser/new-relic-browser/troubleshooting/not-seeing-specific-page-or-endpoint-names-browser-data
+      - title: RPM higher than PPM
+        path: /docs/browser/new-relic-browser/troubleshooting/app-server-requests-greatly-outnumber-browser-pageview-transactions
+      - title: Session trace collection
+        path: /docs/browser/new-relic-browser/troubleshooting/troubleshooting-session-trace-collection
+      - title: "SPA: Missing route changes"
+        path: /docs/browser/single-page-app-monitoring/troubleshooting/missing-route-changes-spa-agent
+      - title: View detailed error logs
+        path: /docs/browser/new-relic-browser/troubleshooting/view-detailed-error-logs-browser
   - title: Release notes
     pages:
       - title: Browser agent release notes
